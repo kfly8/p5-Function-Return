@@ -48,7 +48,7 @@ you can switch off type check:
 
 ## INTROSPECTION
 
-The function Function::Return::info lets you introspect return values like [Function::Parameters::info](https://metacpan.org/pod/Function::Parameters::info):
+The function Function::Return::info lets you introspect return values like [Function::Parameters::Info](https://metacpan.org/pod/Function::Parameters::Info):
 
     use Function::Parameters;
     use Function::Return;

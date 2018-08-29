@@ -73,5 +73,8 @@
    },
    "version" : "0.01",
    "x_authority" : "cpan:KFLY",
+   "x_contributors" : [
+      "Mohammad S Anwar <mohammad.anwar@yahoo.com>"
+   ],
    "x_serialization_backend" : "JSON::PP version 2.97001"
 }
