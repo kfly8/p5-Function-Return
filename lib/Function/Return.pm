@@ -248,7 +248,7 @@ you can switch off type check:
 
 =head2 INTROSPECTION
 
-The function Function::Return::info lets you introspect return values like L<Function::Parameters::info>:
+The function Function::Return::info lets you introspect return values like L<Function::Parameters::Info>:
 
     use Function::Parameters;
     use Function::Return;
