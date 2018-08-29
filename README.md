@@ -15,7 +15,7 @@ Function::Return - add return type for a function
     bar(); # ERROR! Invalid type
 
     # multi return values
-    sub baz :Return(Int, Str) { 3.14, 'message' }
+    sub baz :Return(Num, Str) { 3.14, 'message' }
     my ($pi, $msg) = baz();
     my $count = baz(); # ERROR! Required list context.
 
