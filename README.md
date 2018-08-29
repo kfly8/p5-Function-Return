@@ -60,6 +60,10 @@ The function Function::Return::info lets you introspect return values like [Func
 
     $rinfo->types; # [Str]
 
+# SUPPORT
+
+This module supports all perl versions starting from v5.14.
+
 # NOTE
 
 ## COMPARE Return::Type

@@ -53,6 +53,7 @@
       },
       "test" : {
          "requires" : {
+            "Test::Fatal" : "0",
             "Test::More" : "0.98",
             "Types::Standard" : "0"
          }

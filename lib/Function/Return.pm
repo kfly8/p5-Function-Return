@@ -99,8 +99,8 @@ sub wrap_sub {
         # return Empty List
         return if @$types == 0 && !@ret;
 
-        _croak "Too few return values for fun $shortname (expected @$types, got @{[map { defined ? $_ : 'undef' } @ret]})" if @ret < @$types;
-        _croak "Too many return values for fun $shortname (expected @$types, got @{[map { defined ? $_ : 'undef' } @ret]})" if @ret > @$types;
+        _croak "Too few return values for fun $shortname (expected @$types, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret < @$types;
+        _croak "Too many return values for fun $shortname (expected @$types, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret > @$types;
 
         for my $i (0 .. $#$types) {
             my $type  = $types->[$i];
@@ -259,6 +259,10 @@ The function Function::Return::info lets you introspect return values like L<Fun
     my $rinfo = Function::Return::info \&baz;
 
     $rinfo->types; # [Str]
+
+=head1 SUPPORT
+
+This module supports all perl versions starting from v5.14.
 
 =head1 NOTE
 
