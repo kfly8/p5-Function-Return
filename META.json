@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "add return type for a function",
    "author" : [
       "Kenta, Kobayashi <kentafly88@gmail.com>"
    ],
@@ -42,16 +42,34 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008001"
+            "Function::Parameters" : "0",
+            "Scalar::Util" : "0",
+            "Scope::Upper" : "0",
+            "Sub::Info" : "0",
+            "Sub::Util" : "0",
+            "attributes" : "0",
+            "perl" : "5.014004"
          }
       },
       "test" : {
          "requires" : {
-            "Test::More" : "0.98"
+            "Test::More" : "0.98",
+            "Types::Standard" : "0"
          }
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/kfly8/p5-Function-Return/issues"
+      },
+      "homepage" : "https://github.com/kfly8/p5-Function-Return",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/kfly8/p5-Function-Return.git",
+         "web" : "https://github.com/kfly8/p5-Function-Return"
+      }
+   },
    "version" : "0.01",
    "x_authority" : "cpan:KFLY",
    "x_serialization_backend" : "JSON::PP version 2.97001"

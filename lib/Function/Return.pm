@@ -264,11 +264,11 @@ The function Function::Return::info lets you introspect return values like L<Fun
 
 =head2 COMPARE Return::Type
 
-=item It is NOT possible to specify different type constraints for scalar and list context.
+ It is NOT possible to specify different type constraints for scalar and list context.
 
-=item Check type constraint for void context.
+ Check type constraint for void context.
 
-=item Function::Return::info and Function::Parameters::info can be used together.
+ Function::Return::info and Function::Parameters::info can be used together.
 
 =head1 SEE ALSO
 
