@@ -1,7 +1,7 @@
 {
    "abstract" : "add return type for a function",
    "author" : [
-      "Kenta, Kobayashi <kentafly88@gmail.com>"
+      "kfly8 <kfly@cpan.org>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.1.2, CPAN::Meta::Converter version 2.150010",
@@ -74,6 +74,7 @@
    "version" : "0.03",
    "x_authority" : "cpan:KFLY",
    "x_contributors" : [
+      "Kenta, Kobayashi <kentafly88@gmail.com>",
       "Mohammad S Anwar <mohammad.anwar@yahoo.com>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.97001",
