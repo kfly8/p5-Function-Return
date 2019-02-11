@@ -117,7 +117,7 @@ The requirements of type constraint of `Function::Return` is the same as for `Fu
 
 \> The only requirement is that the returned value (here referred to as $tc, for "type constraint") is an object that provides $tc->check($value) and $tc->get\_message($value) methods. check is called to determine whether a particular value is valid; it should return a true or false value. get\_message is called on values that fail the check test; it should return a string that describes the error.
 
-## compare [Return::Type](https://metacpan.org/pod/Return::Type)
+## compare Return::Type
 
 Both `Return::Type` and `Function::Return` perform type checking on the return value of the function, but there are some differences.
 
