@@ -1,5 +1,5 @@
 {
-   "abstract" : "add return type for a function",
+   "abstract" : "specify a function return type",
    "author" : [
       "kfly8 <kfly@cpan.org>"
    ],
