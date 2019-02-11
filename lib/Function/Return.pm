@@ -308,7 +308,7 @@ The requirements of type constraint of C<Function::Return> is the same as for C<
 
 > The only requirement is that the returned value (here referred to as $tc, for "type constraint") is an object that provides $tc->check($value) and $tc->get_message($value) methods. check is called to determine whether a particular value is valid; it should return a true or false value. get_message is called on values that fail the check test; it should return a string that describes the error.
 
-=head2 compare L<Return::Type>
+=head2 compare Return::Type
 
 Both C<Return::Type> and C<Function::Return> perform type checking on the return value of the function, but there are some differences.
 
