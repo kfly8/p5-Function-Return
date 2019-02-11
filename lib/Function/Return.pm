@@ -3,7 +3,7 @@ package Function::Return;
 use v5.14.0;
 use warnings;
 
-our $VERSION = "0.04";
+our $VERSION = "0.041";
 
 use attributes ();
 use Sub::Util ();
