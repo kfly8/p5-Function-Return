@@ -65,7 +65,7 @@ The function `Function::Return::info` lets you introspect return values like [Fu
 ```perl
 use Function::Return;
 
-fun baz() :Return(Str) { 'hello' }
+sub baz() :Return(Str) { 'hello' }
 
 my $rinfo = Function::Return::info \&baz;
 
