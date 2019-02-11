@@ -39,7 +39,7 @@ sub _MODIFY_CODE_ATTRIBUTES {
     my ($pkg, $sub, @attrs) = @_;
 
     for my $attr (@attrs) {
-        next unless $attr =~ attr_re();
+        next unless $attr =~ _attr_re();
         my $types = $1;
         my $evaled = eval("package $pkg; [$types]");
         $types = $evaled unless $@;
@@ -50,11 +50,11 @@ sub _MODIFY_CODE_ATTRIBUTES {
             types => $types,
         }
     }
-    $ATTR{$sub} = [ grep { !attr_re() } @attrs ];
+    $ATTR{$sub} = [ grep { !_attr_re() } @attrs ];
     return;
 }
 
-sub attr_re {
+sub _attr_re {
     return qr!
         ^
         $IMPORT{name}
@@ -157,7 +157,7 @@ sub info {
     )
 }
 
-sub register_return_info {
+sub _register_return_info {
     my ($func, $types) = @_;
     my $key = Scalar::Util::refaddr $func or return undef;
 
@@ -173,7 +173,7 @@ sub CHECK {
         my ($pkg, $sub, $types)  = @$decl{qw(pkg sub types)};
 
         if (no_check) {
-            register_return_info($sub, $types);
+            _register_return_info($sub, $types);
             next;
         }
 
@@ -191,7 +191,7 @@ sub CHECK {
             no warnings qw(misc);
             attributes::->import($pkg, $wrapped, @attr) if @attr;
         }
-        register_return_info($wrapped, $types);
+        _register_return_info($wrapped, $types);
 
         no strict qw(refs);
         no warnings qw(redefine);
