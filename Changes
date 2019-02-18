@@ -2,6 +2,10 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.05 2019-02-18T01:06:31Z
+    - Add import option `pkg` (bayashi) #5
+    - Fix document
+
 0.041 2019-02-11T13:11:00Z
     - Fix document
 
