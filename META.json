@@ -75,7 +75,8 @@
    "x_authority" : "cpan:KFLY",
    "x_contributors" : [
       "Kenta Kobayashi <kentafly88@gmail.com>",
-      "Mohammad S Anwar <mohammad.anwar@yahoo.com>"
+      "Mohammad S Anwar <mohammad.anwar@yahoo.com>",
+      "bayashi <bayashi@cpan.org>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.97001",
    "x_static_install" : 1

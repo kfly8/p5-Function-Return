@@ -37,7 +37,7 @@ This module supports all perl versions starting from v5.14.
 
 ### name
 
-you can change `Return` to your own name:
+you can change the `:Return` attribute to your own name:
 
 ```perl
 use Function::Return name => 'MyReturn';
@@ -54,6 +54,16 @@ use Function::Return no_check => 1;
 
 sub foo :Return(Int) { 3.14 }
 foo(); # NO ERROR!
+```
+
+### pkg
+
+Function::Return automatically exports a return type by caller.
+
+Or you can specify a package name:
+
+```perl
+use Function::Return pkg => 'MyClass';
 ```
 
 ## METHODS
@@ -109,7 +119,7 @@ my $a = foo(); # => LIST!!
 
 The specified type checks against the value the original function was called in the list context.
 
-`wantarray` is convenient, but it sometimes causes confusion. So, in this module, we prioritized that the expected type of function return value becomes easy to understand.
+`wantarray` is convenient, but it sometimes causes confusion. So, in this module, we prioritize that it easy to understand the type of function return value.
 
 ## requirements of type constraint
 
@@ -119,13 +129,13 @@ The requirements of type constraint of `Function::Return` is the same as for `Fu
 
 ## compare Return::Type
 
-Both `Return::Type` and `Function::Return` perform type checking on the return value of the function, but there are some differences.
+Both `Return::Type` and `Function::Return` perform type checking on function return value, but have some differences.
 
-1\. `Function::Return` is not possible to specify different type constraints for scalar and list context.
+1\. `Function::Return` is not possible to specify different type constraints for scalar and list context, but `Return::Type` is possible.
 
-2\. `Function::Return` check type constraint for void context.
+2\. `Function::Return` check type constraint for void context, but `Return::Type` doesn't.
 
-3\. `Function::Return::info` and `Function::Parameters::info` can be used together.
+3\. `Function::Return::info` and `Function::Parameters::info` can be used together, but `Return::Type` seems a bit difficult.
 
 # SEE ALSO
 
