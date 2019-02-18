@@ -20,6 +20,8 @@ sub import {
     my $class = shift;
     my %args = @_;
 
+    $pkg = $args{pkg} ? $args{pkg} : $pkg;
+
     $IMPORT{name} = exists $args{name} ? $args{name} : $DEFAULT_ATTR_NAME;
     $IMPORT{no_check} = exists $args{no_check} ? $args{no_check} : !!0;
 
@@ -254,6 +256,14 @@ you can switch off type check:
 
     sub foo :Return(Int) { 3.14 }
     foo(); # NO ERROR!
+
+=head3 pkg
+
+Function::Return automatically exports a return type by caller.
+
+Or you can specify a package name:
+
+    use Function::Return pkg => 'MyClass';
 
 =head2 METHODS
 
