@@ -242,7 +242,7 @@ This module supports all perl versions starting from v5.14.
 
 =head3 name
 
-you can change C<Return> to your own name:
+you can change the C<< :Return >> attribute to your own name:
 
     use Function::Return name => 'MyReturn';
 
@@ -310,7 +310,7 @@ C<Function::Return> makes the original function is called in list context whethe
 
 The specified type checks against the value the original function was called in the list context.
 
-C<wantarray> is convenient, but it sometimes causes confusion. So, in this module, we prioritized that the expected type of function return value becomes easy to understand.
+C<wantarray> is convenient, but it sometimes causes confusion. So, in this module, we prioritize that it easy to understand the type of function return value.
 
 =head2 requirements of type constraint
 
@@ -320,13 +320,13 @@ The requirements of type constraint of C<Function::Return> is the same as for C<
 
 =head2 compare Return::Type
 
-Both C<Return::Type> and C<Function::Return> perform type checking on the return value of the function, but there are some differences.
+Both C<Return::Type> and C<Function::Return> perform type checking on function return value, but have some differences.
 
-1. C<Function::Return> is not possible to specify different type constraints for scalar and list context.
+1. C<Function::Return> is not possible to specify different type constraints for scalar and list context, but C<Return::Type> is possible.
 
-2. C<Function::Return> check type constraint for void context.
+2. C<Function::Return> check type constraint for void context, but C<Return::Type> doesn't.
 
-3. C<Function::Return::info> and C<Function::Parameters::info> can be used together.
+3. C<Function::Return::info> and C<Function::Parameters::info> can be used together, but C<Return::Type> seems a bit difficult.
 
 =head1 SEE ALSO
 
