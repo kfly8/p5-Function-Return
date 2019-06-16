@@ -35,16 +35,6 @@ This module supports all perl versions starting from v5.14.
 
 ## IMPORT OPTIONS
 
-### name
-
-you can change the `:Return` attribute to your own name:
-
-```perl
-use Function::Return name => 'MyReturn';
-
-sub foo :MyReturn(Str) { }
-```
-
 ### no\_check
 
 you can switch off type check:
