@@ -55,7 +55,7 @@ sub _MODIFY_CODE_ATTRIBUTES {
             types => $types,
         }
     }
-    $ATTR{$sub} = [ grep { !_attr_re() } @attrs ];
+    $ATTR{$sub} = [ grep { $_ !~ _attr_re() } @attrs ];
     return;
 }
 
