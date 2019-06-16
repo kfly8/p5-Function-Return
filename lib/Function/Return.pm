@@ -13,9 +13,8 @@ use Scope::Upper ();
 use B::Hooks::EndOfScope;
 use Function::Parameters;
 
-our $DEFAULT_ATTR_NAME = 'Return';
+my $ATTR_NAME = 'Return';
 
-my %IMPORT;
 my %NO_CHECK;
 sub import {
     my $pkg = caller;
@@ -23,8 +22,6 @@ sub import {
     my %args = @_;
 
     $pkg = $args{pkg} ? $args{pkg} : $pkg;
-
-    $IMPORT{name} = exists $args{name} ? $args{name} : $DEFAULT_ATTR_NAME;
     $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : !!0;
 
     no strict qw(refs);
@@ -65,7 +62,7 @@ sub _MODIFY_CODE_ATTRIBUTES {
 sub _attr_re {
     return qr!
         ^
-        $IMPORT{name}
+        $ATTR_NAME
         \((.*?)\)
         $
     !x;
@@ -248,14 +245,6 @@ Function::Return allows you to specify a return type for your functions.
 This module supports all perl versions starting from v5.14.
 
 =head2 IMPORT OPTIONS
-
-=head3 name
-
-you can change the C<< :Return >> attribute to your own name:
-
-    use Function::Return name => 'MyReturn';
-
-    sub foo :MyReturn(Str) { }
 
 =head3 no_check
 
