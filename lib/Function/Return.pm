@@ -170,7 +170,14 @@ sub _register_return_info {
     $metadata{$key} = $info;
 }
 
-sub CHECK {
+{
+    no warnings 'void'; # To avoid warnings 'Too late to run CHECK block'
+    sub CHECK {
+        check_sub();
+    }
+}
+
+sub check_sub {
     for my $decl (@DECLARATIONS) {
         my ($pkg, $sub, $types)  = @$decl{qw(pkg sub types)};
 
@@ -298,6 +305,10 @@ This interface is for power-user. Rather than using the C<< :Return >> attribute
 
     my $wrapped = Function::Return->wrap_sub($orig, [Str]);
     $wrapped->();
+
+=head3 Function::Return->check_sub()
+
+Generaly, it's unnecessary to call this method. If you loaded C<Function::Return> at runtime, then you should call C<check_sub> specifically.
 
 =head1 NOTE
 
