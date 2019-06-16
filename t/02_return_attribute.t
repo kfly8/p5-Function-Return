@@ -43,4 +43,20 @@ subtest 'type checks' => sub {
     };
 };
 
+
+sub case_multi_attributes :Return() :method { }
+use attributes;
+
+subtest 'attributes' => sub {
+    {
+        my @attr = attributes::get(\&case_empty_list);
+        is_deeply \@attr, [];
+    }
+
+    {
+        my @attr = attributes::get(\&case_multi_attributes);
+        is_deeply \@attr, ['method'];
+    }
+};
+
 done_testing;
