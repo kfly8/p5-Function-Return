@@ -4,7 +4,7 @@
       "kfly8 <kfly@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.2, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.4, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -42,6 +42,7 @@
       },
       "runtime" : {
          "requires" : {
+            "B::Hooks::EndOfScope" : "0.23",
             "Function::Parameters" : "2.000003",
             "Scalar::Util" : "0",
             "Scope::Upper" : "0",
