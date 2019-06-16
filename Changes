@@ -2,6 +2,12 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.06 2019-06-16T22:11:25Z
+    - Support lazy load #7 #6
+    - [BUGFIX] Fix no_check option #8
+    - [IMCOMPATIBLE CHANGE] remove name option #9
+    - add attributes tests #10
+
 0.05 2019-02-18T01:06:31Z
     - Add import option `pkg` (bayashi) #5
     - Fix document
