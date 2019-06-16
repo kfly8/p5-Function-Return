@@ -16,6 +16,7 @@ use Function::Parameters;
 our $DEFAULT_ATTR_NAME = 'Return';
 
 my %IMPORT;
+my %NO_CHECK;
 sub import {
     my $pkg = caller;
     my $class = shift;
@@ -24,7 +25,7 @@ sub import {
     $pkg = $args{pkg} ? $args{pkg} : $pkg;
 
     $IMPORT{name} = exists $args{name} ? $args{name} : $DEFAULT_ATTR_NAME;
-    $IMPORT{no_check} = exists $args{no_check} ? $args{no_check} : !!0;
+    $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : !!0;
 
     no strict qw(refs);
     *{"${pkg}::FETCH_CODE_ATTRIBUTES"} = \&_FETCH_CODE_ATTRIBUTES;
@@ -70,7 +71,10 @@ sub _attr_re {
     !x;
 }
 
-sub no_check { $IMPORT{no_check} }
+sub no_check {
+    my $pkg = shift;
+    $NO_CHECK{$pkg}
+}
 
 sub _croak {
     my (undef, $file, $line) = caller 1;
@@ -179,7 +183,7 @@ sub _check_sub {
     for my $decl (@DECLARATIONS) {
         my ($pkg, $sub, $types)  = @$decl{qw(pkg sub types)};
 
-        if (no_check) {
+        if (no_check($pkg)) {
             _register_return_info($sub, $types);
             next;
         }
