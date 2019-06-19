@@ -2,6 +2,10 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.07 2019-06-19T13:15:07Z
+    - [BUGFIX] Fix check_sub #11
+    - Support `no_check` option globally #12
+
 0.06 2019-06-16T22:11:25Z
     - Support lazy load #7 #6
     - [BUGFIX] Fix no_check option #8
