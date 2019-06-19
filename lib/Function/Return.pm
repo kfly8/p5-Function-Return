@@ -14,8 +14,11 @@ use B::Hooks::EndOfScope;
 use Function::Parameters;
 
 my $ATTR_NAME = 'Return';
+my %ATTR;
 
 my %NO_CHECK;
+my @DECLARATIONS;
+
 sub import {
     my $pkg = caller;
     my $class = shift;
@@ -29,12 +32,19 @@ sub import {
     *{"${pkg}::MODIFY_CODE_ATTRIBUTES"} = \&_MODIFY_CODE_ATTRIBUTES;
 
     on_scope_end {
-        _check_sub();
+        while (my $decl = shift @DECLARATIONS) {
+            my ($pkg, $sub, $types) = @$decl{qw(pkg sub types)};
+
+            if (no_check($pkg)) {
+                _register_return_info($sub, $types);
+                next;
+            }
+
+            _register_wrapped_sub($pkg, $sub, $types);
+        }
     }
 }
 
-my %ATTR;
-my @DECLARATIONS;
 sub _FETCH_CODE_ATTRIBUTES {
     my ($pkg, $sub, @attrs) = @_;
     return @{$ATTR{$sub}||[]};
@@ -133,10 +143,20 @@ sub _get_parameters_info {
     return Function::Parameters::info($sub);
 }
 
+sub _delete_parameters_info {
+    my ($key) = @_;
+    delete $Function::Parameters::metadata{$key};
+}
+
+sub _key_parameters_info {
+    my ($sub) = @_;
+    return Function::Parameters::_cv_root($sub);
+}
+
 sub _set_parameters_info {
     my ($info, $sub) = @_;
 
-    my $key = Function::Parameters::_cv_root($sub);
+    my $key = _key_parameters_info($sub);
     return Function::Parameters::_register_info(
         $key,
         $info->keyword,
@@ -176,35 +196,34 @@ sub _register_return_info {
     $metadata{$key} = $info;
 }
 
-sub _check_sub {
-    for my $decl (@DECLARATIONS) {
-        my ($pkg, $sub, $types)  = @$decl{qw(pkg sub types)};
+sub _register_wrapped_sub {
+    my ($pkg, $sub, $types) = @_;
 
-        if (no_check($pkg)) {
-            _register_return_info($sub, $types);
-            next;
-        }
+    my $subname   = Sub::Util::subname($sub);
+    my $prototype = Sub::Util::prototype($sub);
+    my @attr      = attributes::get($sub);
+    my $pinfo     = _get_parameters_info($sub);
+    my $pkey      = _key_parameters_info($sub);
 
-        my $subname   = Sub::Util::subname($sub);
-        my $prototype = Sub::Util::prototype($sub);
-        my @attr      = attributes::get($sub);
-        my $pinfo     = _get_parameters_info($sub);
+    my $wrapped = __PACKAGE__->wrap_sub($sub, $types);
 
-        my $wrapped = __PACKAGE__->wrap_sub($sub, $types);
+    Sub::Util::set_subname($subname, $wrapped);
+    Sub::Util::set_prototype($prototype, $wrapped) if $prototype;
 
-        Sub::Util::set_subname($subname, $wrapped);
-        Sub::Util::set_prototype($prototype, $wrapped) if $prototype;
-        _set_parameters_info($pinfo, $wrapped) if $pinfo;
-        {
-            no warnings qw(misc);
-            attributes::->import($pkg, $wrapped, @attr) if @attr;
-        }
-        _register_return_info($wrapped, $types);
-
-        no strict qw(refs);
-        no warnings qw(redefine);
-        *{$subname} = $wrapped;
+    if ($pinfo) {
+        _delete_parameters_info($pkey);
+        _set_parameters_info($pinfo, $wrapped);
     }
+
+    {
+        no warnings qw(misc);
+        attributes::->import($pkg, $wrapped, @attr) if @attr;
+    }
+    _register_return_info($wrapped, $types);
+
+    no strict qw(refs);
+    no warnings qw(redefine);
+    *{$subname} = $wrapped;
 }
 
 1;
