@@ -13,9 +13,9 @@ use Scope::Upper ();
 use B::Hooks::EndOfScope;
 use Function::Parameters;
 
-my $ATTR_NAME = 'Return';
-my %ATTR;
+use constant DEFAULT_NO_CHECK => !!($ENV{FUNCTION_RETURN_NO_CHECK} // 0);
 
+my %ATTR;
 my %NO_CHECK;
 my @DECLARATIONS;
 
@@ -25,7 +25,7 @@ sub import {
     my %args = @_;
 
     $pkg = $args{pkg} ? $args{pkg} : $pkg;
-    $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : !!0;
+    $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : DEFAULT_NO_CHECK;
 
     no strict qw(refs);
     *{"${pkg}::FETCH_CODE_ATTRIBUTES"} = \&_FETCH_CODE_ATTRIBUTES;
@@ -72,7 +72,7 @@ sub _MODIFY_CODE_ATTRIBUTES {
 sub _attr_re {
     return qr!
         ^
-        $ATTR_NAME
+        Return
         \((.*?)\)
         $
     !x;
@@ -267,10 +267,19 @@ This module supports all perl versions starting from v5.14.
 
 =head3 no_check
 
-you can switch off type check:
+You can switch off type check.
+If you change globally, use C<<$ENV{FUNCTION_RETURN_NO_CHECK}>>:
+
+    BEGIN {
+        $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
+    }
+    use Function::Return;
+    sub foo :Return(Int) { 3.14 }
+    foo(); # NO ERROR!
+
+And If you want to switch by a package, it is better to use the no_check option:
 
     use Function::Return no_check => 1;
-
     sub foo :Return(Int) { 3.14 }
     foo(); # NO ERROR!
 
