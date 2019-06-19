@@ -37,11 +37,22 @@ This module supports all perl versions starting from v5.14.
 
 ### no\_check
 
-you can switch off type check:
+You can switch off type check.
+If you change globally, use `<$ENV{FUNCTION_RETURN_NO_CHECK}`>:
+
+```perl
+BEGIN {
+    $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
+}
+use Function::Return;
+sub foo :Return(Int) { 3.14 }
+foo(); # NO ERROR!
+```
+
+And If you want to switch by a package, it is better to use the no\_check option:
 
 ```perl
 use Function::Return no_check => 1;
-
 sub foo :Return(Int) { 3.14 }
 foo(); # NO ERROR!
 ```
