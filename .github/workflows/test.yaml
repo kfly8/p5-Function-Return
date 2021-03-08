@@ -1,0 +1,57 @@
+name: test
+
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl:
+          [
+            "5.32",
+            "5.30",
+            "5.28",
+            "5.26",
+            "5.24",
+            "5.22",
+            "5.20",
+            "5.18",
+            "5.16",
+            "5.14",
+            "5.12",
+            "5.10"
+          ]
+        include:
+          - perl: 5.32
+            coverage: true
+    name: Perl ${{ matrix.perl }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Setup Perl
+      uses: shogo82148/actions-setup-perl@v1
+      with:
+        perl-version: ${{ matrix.perl }}
+
+    - name: Install dependencies
+      run: |
+        cpm install -g
+
+    - name: Build
+      run: |
+        perl Build.PL
+        ./Build
+
+    - name: Run test
+      run: |
+        ./Build test
+
+    - name: Run coverage
+      if: ${{ matrix.coverage }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cpm install -g Devel::Cover::Report::Coveralls
+        cover -test -report coveralls
+
