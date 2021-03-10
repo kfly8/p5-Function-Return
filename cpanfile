@@ -12,5 +12,6 @@ on 'test' => sub {
     requires 'Test::Fatal';
     requires 'Types::Standard';
     requires 'Module::Build::Tiny', 0.035;
+    requires 'Attribute::Handlers',
 };
 

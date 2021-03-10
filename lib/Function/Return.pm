@@ -47,26 +47,33 @@ sub import {
 
 sub _FETCH_CODE_ATTRIBUTES {
     my ($pkg, $sub, @attrs) = @_;
-    return @{$ATTR{$sub}||[]};
+    my $key = Scalar::Util::refaddr $sub;
+    return @{$ATTR{$key}||[]};
 }
 
 sub _MODIFY_CODE_ATTRIBUTES {
     my ($pkg, $sub, @attrs) = @_;
 
+    my @ignore;
     for my $attr (@attrs) {
-        next unless $attr =~ _attr_re();
-        my $types = $1;
-        my $evaled = eval("package $pkg; [$types]");
-        $types = $evaled unless $@;
+        if ($attr =~ _attr_re()) {
+            my $types = $1;
+            my $evaled = eval("package $pkg; [$types]");
+            $types = $evaled unless $@;
 
-        push @DECLARATIONS => {
-            pkg   => $pkg,
-            sub   => $sub,
-            types => $types,
+            push @DECLARATIONS => {
+                pkg   => $pkg,
+                sub   => $sub,
+                types => $types,
+            }
+        }
+        else {
+            push @ignore => $attr;
         }
     }
-    $ATTR{$sub} = [ grep { $_ !~ _attr_re() } @attrs ];
-    return;
+    my $key = Scalar::Util::refaddr $sub;
+    $ATTR{$key} = \@ignore;
+    return @ignore;
 }
 
 sub _attr_re {
