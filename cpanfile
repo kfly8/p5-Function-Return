@@ -1,6 +1,6 @@
 requires 'perl', '5.014004';
 requires 'attributes';
-requires 'Attribute::Handlers',
+requires 'Attribute::Handlers';
 requires 'Sub::Util';
 requires 'Sub::Info';
 requires 'Scalar::Util';
