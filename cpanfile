@@ -1,5 +1,6 @@
 requires 'perl', '5.014004';
 requires 'attributes';
+requires 'Attribute::Handlers',
 requires 'Sub::Util';
 requires 'Sub::Info';
 requires 'Scalar::Util';
@@ -12,6 +13,5 @@ on 'test' => sub {
     requires 'Test::Fatal';
     requires 'Types::Standard';
     requires 'Module::Build::Tiny', 0.035;
-    requires 'Attribute::Handlers',
 };
 
