@@ -19,9 +19,9 @@ use constant DEFAULT_NO_CHECK => !!($ENV{FUNCTION_RETURN_NO_CHECK} // 0);
 my %NO_CHECK;
 
 sub import {
-    my $pkg = caller;
     my $class = shift;
     my %args = @_;
+    my $pkg = caller;
 
     $pkg = $args{pkg} ? $args{pkg} : $pkg;
     $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : DEFAULT_NO_CHECK;
@@ -30,21 +30,22 @@ sub import {
 }
 
 sub UNIVERSAL::Return :ATTR(CODE,BEGIN) {
+    my $class = __PACKAGE__;
     my ($pkg, $subname, $sub, $attr, $types) = @_;
     $types //= [];
 
     on_scope_end {
-        if (no_check($pkg)) {
-            _register_return_info($sub, $types);
+        if ($class->no_check($pkg)) {
+            $class->_register_return_info($sub, $types);
         }
         else {
-            _register_wrapped_sub($pkg, $sub, $types);
+            $class->_register_wrapped_sub($pkg, $sub, $types);
         }
     };
 }
 
 sub no_check {
-    my $pkg = shift;
+    my ($class, $pkg) = @_;
     $NO_CHECK{$pkg}
 }
 
@@ -54,8 +55,7 @@ sub _croak {
 }
 
 sub wrap_sub {
-    my $class = shift;
-    my ($sub, $types) = @_;
+    my ($class, $sub, $types) = @_;
 
     my $sub_info  = Sub::Info::sub_info($sub);
     my $shortname = $sub_info->{name};
@@ -104,24 +104,24 @@ sub {
 }
 
 sub _get_parameters_info {
-    my $sub = shift;
+    my ($class, $sub) = @_;
     return Function::Parameters::info($sub);
 }
 
 sub _delete_parameters_info {
-    my ($key) = @_;
+    my ($class, $key) = @_;
     delete $Function::Parameters::metadata{$key};
 }
 
 sub _key_parameters_info {
-    my ($sub) = @_;
+    my ($class, $sub) = @_;
     return Function::Parameters::_cv_root($sub);
 }
 
 sub _set_parameters_info {
-    my ($info, $sub) = @_;
+    my ($class, $info, $sub) = @_;
 
-    my $key = _key_parameters_info($sub);
+    my $key = $class->_key_parameters_info($sub);
     return Function::Parameters::_register_info(
         $key,
         $info->keyword,
@@ -141,8 +141,8 @@ sub _set_parameters_info {
 
 our %metadata;
 sub info {
-    my ($func) = @_;
-    my $key = Scalar::Util::refaddr $func or return undef;
+    my ($sub) = @_;
+    my $key = Scalar::Util::refaddr $sub or return undef;
     my $info = $metadata{$key} or return undef;
     require Function::Return::Info;
     Function::Return::Info->new(
@@ -151,8 +151,8 @@ sub info {
 }
 
 sub _register_return_info {
-    my ($func, $types) = @_;
-    my $key = Scalar::Util::refaddr $func or return undef;
+    my ($class, $sub, $types) = @_;
+    my $key = Scalar::Util::refaddr $sub or return undef;
 
     my $info = {
         types => $types
@@ -162,29 +162,29 @@ sub _register_return_info {
 }
 
 sub _register_wrapped_sub {
-    my ($pkg, $sub, $types) = @_;
+    my ($class, $pkg, $sub, $types) = @_;
 
     my $subname   = Sub::Util::subname($sub);
     my $prototype = Sub::Util::prototype($sub);
     my @attr      = attributes::get($sub);
-    my $pinfo     = _get_parameters_info($sub);
-    my $pkey      = _key_parameters_info($sub);
+    my $pinfo     = $class->_get_parameters_info($sub);
+    my $pkey      = $class->_key_parameters_info($sub);
 
-    my $wrapped = __PACKAGE__->wrap_sub($sub, $types);
+    my $wrapped = $class->wrap_sub($sub, $types);
 
     Sub::Util::set_subname($subname, $wrapped);
     Sub::Util::set_prototype($prototype, $wrapped) if $prototype;
 
     if ($pinfo) {
-        _delete_parameters_info($pkey);
-        _set_parameters_info($pinfo, $wrapped);
+        $class->_delete_parameters_info($pkey);
+        $class->_set_parameters_info($pinfo, $wrapped);
     }
 
     {
         no warnings qw(misc);
         attributes::->import($pkg, $wrapped, @attr) if @attr;
     }
-    _register_return_info($wrapped, $types);
+    $class->_register_return_info($wrapped, $types);
 
     no strict qw(refs);
     no warnings qw(redefine);
