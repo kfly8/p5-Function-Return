@@ -5,6 +5,7 @@ use warnings;
 
 our $VERSION = "0.07";
 
+use Attribute::Handlers;
 use attributes ();
 use Sub::Util ();
 use Sub::Info ();
@@ -15,9 +16,7 @@ use Function::Parameters;
 
 use constant DEFAULT_NO_CHECK => !!($ENV{FUNCTION_RETURN_NO_CHECK} // 0);
 
-my %ATTR;
 my %NO_CHECK;
-my @DECLARATIONS;
 
 sub import {
     my $pkg = caller;
@@ -27,55 +26,21 @@ sub import {
     $pkg = $args{pkg} ? $args{pkg} : $pkg;
     $NO_CHECK{$pkg} = exists $args{no_check} ? !!$args{no_check} : DEFAULT_NO_CHECK;
 
-    no strict qw(refs);
-    *{"${pkg}::FETCH_CODE_ATTRIBUTES"} = \&_FETCH_CODE_ATTRIBUTES;
-    *{"${pkg}::MODIFY_CODE_ATTRIBUTES"} = \&_MODIFY_CODE_ATTRIBUTES;
-
-    on_scope_end {
-        while (my $decl = shift @DECLARATIONS) {
-            my ($pkg, $sub, $types) = @$decl{qw(pkg sub types)};
-
-            if (no_check($pkg)) {
-                _register_return_info($sub, $types);
-                next;
-            }
-
-            _register_wrapped_sub($pkg, $sub, $types);
-        }
-    }
-}
-
-sub _FETCH_CODE_ATTRIBUTES {
-    my ($pkg, $sub, @attrs) = @_;
-    return @{$ATTR{$sub}||[]};
-}
-
-sub _MODIFY_CODE_ATTRIBUTES {
-    my ($pkg, $sub, @attrs) = @_;
-
-    for my $attr (@attrs) {
-        next unless $attr =~ _attr_re();
-        my $types = $1;
-        my $evaled = eval("package $pkg; [$types]");
-        $types = $evaled unless $@;
-
-        push @DECLARATIONS => {
-            pkg   => $pkg,
-            sub   => $sub,
-            types => $types,
-        }
-    }
-    $ATTR{$sub} = [ grep { $_ !~ _attr_re() } @attrs ];
     return;
 }
 
-sub _attr_re {
-    return qr!
-        ^
-        Return
-        \((.*?)\)
-        $
-    !x;
+sub UNIVERSAL::Return :ATTR(CODE,BEGIN) {
+    my ($pkg, $subname, $sub, $attr, $types) = @_;
+    $types //= [];
+
+    on_scope_end {
+        if (no_check($pkg)) {
+            _register_return_info($sub, $types);
+        }
+        else {
+            _register_wrapped_sub($pkg, $sub, $types);
+        }
+    };
 }
 
 sub no_check {
