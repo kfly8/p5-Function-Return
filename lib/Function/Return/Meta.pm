@@ -36,35 +36,32 @@ sub wrap_sub {
         }
     }
 
-    my $src = q|
-sub {
-    _croak "Required list context in fun $shortname because of multiple return values function"
-        if @$types > 1 && !wantarray;
+    my @src;
+    push @src => sprintf('_croak "Required list context in fun %s because of multiple return values function" if !wantarray;', $shortname) if @$types > 1;
 
     # force LIST context.
-    my @ret = &Scope::Upper::uplevel($sub, @_, &Scope::Upper::CALLER(0));
+    push @src => 'my @ret = &Scope::Upper::uplevel($sub, @_, &Scope::Upper::CALLER(0));';
 
     # return Empty List
-    return if @$types == 0 && !@ret;
+    push @src => 'return if !@ret;' if @$types == 0;
 
-    _croak "Too few return values for fun $shortname (expected @$types, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret < @$types;
-    _croak "Too many return values for fun $shortname (expected @$types, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret > @$types;
+    # check count
+    push @src => sprintf(q|_croak "Too few return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret < %d;|,
+                         $shortname, "@$types", scalar @$types) if @$types > 0;
 
+    push @src => sprintf(q|_croak "Too many return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret > %d;|,
+                         $shortname, "@$types", scalar @$types);
+
+    # type check
     for my $i (0 .. $#$types) {
-        my $type  = $types->[$i];
-        my $value = $ret[$i];
-        _croak "Invalid return in fun $shortname: return $i: @{[$type->get_message($value)]}" unless $type->check($value);
+        push @src => sprintf(q|_croak "Invalid return in fun %s: return %d: @{[$types->[%d]->get_message($ret[%d])]}" unless $types->[%d]->check($ret[%d]);|, $shortname, $i, $i, $i, $i,$i)
     }
 
-    return @$types > 1 ? @ret # multi return
-         : $ret[0]            # single return
-};
-|;
+    push @src => 'return @ret;'    if @$types > 1;
+    push @src => 'return $ret[0];' if @$types == 1;
 
-    my $code = eval $src; ## no critic
-    if ($@) {
-        _croak $@;
-    }
+    my $src = join "\n", @src;
+    my $code = eval "sub { $src }"; ## no critic
     return $code;
 }
 
