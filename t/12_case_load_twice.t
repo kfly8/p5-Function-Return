@@ -12,7 +12,7 @@ fun hello() :Return() { }
 my $info = Function::Parameters::info(\&hello);
 is $info, undef;
 
-my $meta = Function::Return::meta(\&hello);
+my $meta = Function::Return::Meta->get(\&hello);
 isa_ok $meta, 'Sub::Meta';
 
 done_testing;

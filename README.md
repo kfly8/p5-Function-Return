@@ -67,55 +67,22 @@ Or you can specify a package name:
 use Function::Return pkg => 'MyClass';
 ```
 
-## FUNCTIONS
+# NOTE
 
-### Function::Return::meta($coderef)
+## handling meta information
 
-The function `Function::Return::meta` lets you introspect return values:
+[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta) can handle the meta information of `Function::Return`:
 
 ```perl
 use Function::Return;
+use Function::Return::Meta;
 use Types::Standard -types;
 
 sub baz() :Return(Str) { 'hello' }
 
-my $meta = Function::Return::meta \&baz; # Sub::Meta
+my $meta = Function::Return::Meta->get(\&baz); # Sub::Meta
 $meta->returns->list; # [Str]
 ```
-
-In addition, it can be used with [Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters):
-
-```perl
-use Function::Parameters;
-use Function::Return;
-use Types::Standard -types;
-
-fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
-
-my $meta = Function::Return::meta \&hello; # Sub::Meta
-$meta->returns->list; # [Str]
-
-$meta->args->[0]->type; # Str
-$meta->args->[0]->name; # $msg
-
-# Note
-Function::Parameters::info \&hello; # undef
-```
-
-This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
-
-## CLASS METHODS
-
-### wrap\_sub($coderef)
-
-This interface is for power-user. Rather than using the `:Return` attribute, it's possible to wrap a coderef like this:
-
-```perl
-my $wrapped = Function::Return->wrap_sub($orig, [Str]);
-$wrapped->();
-```
-
-# NOTE
 
 ## enforce LIST to simplify
 
@@ -132,23 +99,23 @@ The specified type checks against the value the original function was called in 
 
 ## requirements of type constraint
 
-The requirements of type constraint of `Function::Return` is the same as for `Function::Parameters`. Specific requirements are as follows:
+The requirements of type constraint of `Function::Return` is the same as for [Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters). Specific requirements are as follows:
 
 \> The only requirement is that the returned value (here referred to as $tc, for "type constraint") is an object that provides $tc->check($value) and $tc->get\_message($value) methods. check is called to determine whether a particular value is valid; it should return a true or false value. get\_message is called on values that fail the check test; it should return a string that describes the error.
 
 ## compare Return::Type
 
-Both `Return::Type` and `Function::Return` perform type checking on function return value, but have some differences.
+Both [Return::Type](https://metacpan.org/pod/Return%3A%3AType) and `Function::Return` perform type checking on function return value, but have some differences.
 
 1\. `Function::Return` is not possible to specify different type constraints for scalar and list context, but `Return::Type` is possible.
 
 2\. `Function::Return` check type constraint for void context, but `Return::Type` doesn't.
 
-3\. `Function::Return::meta` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
+3\. `Function::Return::Meta#get` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
 
 # SEE ALSO
 
-[Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters), [Return::Type](https://metacpan.org/pod/Return%3A%3AType)
+[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta)
 
 # LICENSE
 
