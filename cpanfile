@@ -1,9 +1,7 @@
 requires 'perl', '5.014004';
-requires 'attributes';
+
 requires 'Attribute::Handlers';
-requires 'Sub::Util';
-requires 'Sub::Info';
-requires 'Scalar::Util';
+requires 'Sub::Meta', '0.08';
 requires 'Scope::Upper';
 requires 'Function::Parameters', '2.000003';
 requires 'B::Hooks::EndOfScope', '0.23';
