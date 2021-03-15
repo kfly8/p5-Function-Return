@@ -45,12 +45,8 @@
             "Attribute::Handlers" : "0",
             "B::Hooks::EndOfScope" : "0.23",
             "Function::Parameters" : "2.000003",
-            "Scalar::Util" : "0",
             "Scope::Upper" : "0",
-            "Sub::Info" : "0",
             "Sub::Meta" : "0.08",
-            "Sub::Util" : "0",
-            "attributes" : "0",
             "perl" : "5.014004"
          }
       },
