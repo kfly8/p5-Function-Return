@@ -47,6 +47,7 @@
             "Function::Parameters" : "2.000003",
             "Scope::Upper" : "0",
             "Sub::Meta" : "0.08",
+            "namespace::autoclean" : "0",
             "perl" : "5.014004"
          }
       },
