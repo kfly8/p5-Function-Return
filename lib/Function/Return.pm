@@ -6,13 +6,13 @@ use warnings;
 our $VERSION = "0.07";
 
 use Attribute::Handlers;
-use attributes ();
-use Sub::Util ();
-use Sub::Info ();
-use Scalar::Util ();
 use Scope::Upper ();
 use B::Hooks::EndOfScope;
-use Function::Parameters;
+
+use Sub::Meta;
+use Sub::Meta::Library;
+use Sub::Meta::Creator;
+use Sub::Meta::Finder::FunctionParameters;
 
 use constant DEFAULT_NO_CHECK => !!($ENV{FUNCTION_RETURN_NO_CHECK} // 0);
 
@@ -31,15 +31,15 @@ sub import {
 
 sub UNIVERSAL::Return :ATTR(CODE,BEGIN) {
     my $class = __PACKAGE__;
-    my ($pkg, $subname, $sub, $attr, $types) = @_;
+    my ($pkg, undef, $sub, $attr, $types) = @_;
     $types //= [];
 
     on_scope_end {
         if ($class->no_check($pkg)) {
-            $class->_register_return_info($sub, $types);
+            $class->_register_submeta($pkg, $sub, $types);
         }
         else {
-            $class->_register_wrapped_sub($pkg, $sub, $types);
+            $class->_register_submeta_and_install($pkg, $sub, $types);
         }
     };
 }
@@ -57,12 +57,12 @@ sub _croak {
 sub wrap_sub {
     my ($class, $sub, $types) = @_;
 
-    my $sub_info  = Sub::Info::sub_info($sub);
-    my $shortname = $sub_info->{name};
+    my $meta = Sub::Meta->new(sub => $sub);
+    my $shortname = $meta->subname;
 
     { # check type
-        my $file = $sub_info->{file};
-        my $line = $sub_info->{start_line};
+        my $file = $meta->file;
+        my $line = $meta->line;
         for my $type (@$types) {
             for (qw/check get_message/) {
                 die "Invalid type: $type. require `$_` method at $file line $line.\n"
@@ -103,92 +103,49 @@ sub {
     return $code;
 }
 
-sub _get_parameters_info {
-    my ($class, $sub) = @_;
-    return Function::Parameters::info($sub);
-}
-
-sub _delete_parameters_info {
-    my ($class, $key) = @_;
-    delete $Function::Parameters::metadata{$key};
-}
-
-sub _key_parameters_info {
-    my ($class, $sub) = @_;
-    return Function::Parameters::_cv_root($sub);
-}
-
-sub _set_parameters_info {
-    my ($class, $info, $sub) = @_;
-
-    my $key = $class->_key_parameters_info($sub);
-    return Function::Parameters::_register_info(
-        $key,
-        $info->keyword,
-        $info->nshift,
-        map {
-            my $params = $info->{"_$_"};
-            [ map { $_->name, $_->type } @$params ]
-        } qw(
-            positional_required
-            positional_optional
-            named_required
-            named_optional
-        ),
-        $info->slurpy ? ($info->slurpy->name, $info->slurpy->type) : (),
-    );
-}
-
-our %metadata;
-sub info {
+sub meta {
     my ($sub) = @_;
-    my $key = Scalar::Util::refaddr $sub or return undef;
-    my $info = $metadata{$key} or return undef;
-    require Function::Return::Info;
-    Function::Return::Info->new(
-        types => $info->{types},
-    )
+    Sub::Meta::Library->get($sub);
 }
 
-sub _register_return_info {
-    my ($class, $sub, $types) = @_;
-    my $key = Scalar::Util::refaddr $sub or return undef;
-
-    my $info = {
-        types => $types
-    };
-
-    $metadata{$key} = $info;
-}
-
-sub _register_wrapped_sub {
+sub _register_submeta {
     my ($class, $pkg, $sub, $types) = @_;
 
-    my $subname   = Sub::Util::subname($sub);
-    my $prototype = Sub::Util::prototype($sub);
-    my @attr      = attributes::get($sub);
-    my $pinfo     = $class->_get_parameters_info($sub);
-    my $pkey      = $class->_key_parameters_info($sub);
+    my $meta = Sub::Meta->new(sub => $sub, stashname => $pkg);
+    $meta->set_returns(list => $types);
 
-    my $wrapped = $class->wrap_sub($sub, $types);
-
-    Sub::Util::set_subname($subname, $wrapped);
-    Sub::Util::set_prototype($prototype, $wrapped) if $prototype;
-
-    if ($pinfo) {
-        $class->_delete_parameters_info($pkey);
-        $class->_set_parameters_info($pinfo, $wrapped);
+    if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
+        $meta->set_is_method($materials->{is_method});
+        $meta->set_parameters($materials->{parameters});
     }
+
+    Sub::Meta::Library->register($sub, $meta);
+    return;
+}
+
+sub _register_submeta_and_install {
+    my ($class, $pkg, $sub, $types) = @_;
+
+    my $original_meta = Sub::Meta->new(sub => $sub);
+    my $wrapped  = $class->wrap_sub($sub, $types);
+
+    my $meta = Sub::Meta->new(sub => $wrapped, stashname => $pkg);
+    $meta->set_returns(list => $types);
+
+    if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
+        $meta->set_is_method($materials->{is_method});
+        $meta->set_parameters($materials->{parameters});
+    }
+
+    $meta->apply_meta($original_meta);
+    Sub::Meta::Library->register($wrapped, $meta);
 
     {
-        no warnings qw(misc);
-        attributes::->import($pkg, $wrapped, @attr) if @attr;
+        no strict qw(refs);
+        no warnings qw(redefine);
+        *{$meta->fullname} = $wrapped;
     }
-    $class->_register_return_info($wrapped, $types);
-
-    no strict qw(refs);
-    no warnings qw(redefine);
-    *{$subname} = $wrapped;
+    return;
 }
 
 1;
@@ -256,34 +213,42 @@ Or you can specify a package name:
 
     use Function::Return pkg => 'MyClass';
 
-=head2 METHODS
+=head2 FUNCTIONS
 
-=head3 Function::Return::info($coderef)
+=head3 Function::Return::meta($coderef)
 
-The function C<Function::Return::info> lets you introspect return values like L<Function::Parameters::Info>:
+The function C<Function::Return::meta> lets you introspect return values:
 
     use Function::Return;
+    use Types::Standard -types;
 
     sub baz() :Return(Str) { 'hello' }
 
-    my $rinfo = Function::Return::info \&baz;
-
-    $rinfo->types; # [Str]
-    $rinfo->isa('Function::Return::Info');
+    my $meta = Function::Return::meta \&baz; # Sub::Meta
+    $meta->returns->list; # [Str]
 
 In addition, it can be used with L<Function::Parameters>:
 
     use Function::Parameters;
     use Function::Return;
+    use Types::Standard -types;
 
-    fun baz() :Return(Str) { 'hello' }
+    fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
 
-    my $pinfo = Function::Parameters::info \&baz;
-    my $rinfo = Function::Return::info \&baz;
+    my $meta = Function::Return::meta \&hello; # Sub::Meta
+    $meta->returns->list; # [Str]
+
+    $meta->args->[0]->type; # Str
+    $meta->args->[0]->name; # $msg
+
+    # Note
+    Function::Parameters::info \&hello; # undef
 
 This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
 
-=head3 Function::Return->wrap_sub($coderef)
+=head2 CLASS METHODS
+
+=head3 wrap_sub($coderef)
 
 This interface is for power-user. Rather than using the C<< :Return >> attribute, it's possible to wrap a coderef like this:
 
@@ -317,7 +282,7 @@ Both C<Return::Type> and C<Function::Return> perform type checking on function r
 
 2. C<Function::Return> check type constraint for void context, but C<Return::Type> doesn't.
 
-3. C<Function::Return::info> and C<Function::Parameters::info> can be used together, but C<Return::Type> seems a bit difficult.
+3. C<Function::Return::meta> can be used together with C<Function::Parameters::Info>, but C<Return::Type> seems a bit difficult.
 
 =head1 SEE ALSO
 

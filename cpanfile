@@ -3,6 +3,7 @@ requires 'attributes';
 requires 'Attribute::Handlers';
 requires 'Sub::Util';
 requires 'Sub::Info';
+requires 'Sub::Meta', '0.08';
 requires 'Scalar::Util';
 requires 'Scope::Upper';
 requires 'Function::Parameters', '2.000003';

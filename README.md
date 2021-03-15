@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kfly8/p5-Function-Return.svg?branch=master)](https://travis-ci.org/kfly8/p5-Function-Return) [![Coverage Status](https://img.shields.io/coveralls/kfly8/p5-Function-Return/master.svg?style=flat)](https://coveralls.io/r/kfly8/p5-Function-Return?branch=master) [![MetaCPAN Release](https://badge.fury.io/pl/Function-Return.svg)](https://metacpan.org/release/Function-Return)
+[![Actions Status](https://github.com/kfly8/p5-Function-Return/workflows/test/badge.svg)](https://github.com/kfly8/p5-Function-Return/actions) [![Coverage Status](https://img.shields.io/coveralls/kfly8/p5-Function-Return/master.svg?style=flat)](https://coveralls.io/r/kfly8/p5-Function-Return?branch=master) [![MetaCPAN Release](https://badge.fury.io/pl/Function-Return.svg)](https://metacpan.org/release/Function-Return)
 # NAME
 
 Function::Return - specify a function return type
@@ -67,38 +67,46 @@ Or you can specify a package name:
 use Function::Return pkg => 'MyClass';
 ```
 
-## METHODS
+## FUNCTIONS
 
-### Function::Return::info($coderef)
+### Function::Return::meta($coderef)
 
-The function `Function::Return::info` lets you introspect return values like [Function::Parameters::Info](https://metacpan.org/pod/Function::Parameters::Info):
+The function `Function::Return::meta` lets you introspect return values:
 
 ```perl
 use Function::Return;
+use Types::Standard -types;
 
 sub baz() :Return(Str) { 'hello' }
 
-my $rinfo = Function::Return::info \&baz;
-
-$rinfo->types; # [Str]
-$rinfo->isa('Function::Return::Info');
+my $meta = Function::Return::meta \&baz; # Sub::Meta
+$meta->returns->list; # [Str]
 ```
 
-In addition, it can be used with [Function::Parameters](https://metacpan.org/pod/Function::Parameters):
+In addition, it can be used with [Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters):
 
 ```perl
 use Function::Parameters;
 use Function::Return;
+use Types::Standard -types;
 
-fun baz() :Return(Str) { 'hello' }
+fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
 
-my $pinfo = Function::Parameters::info \&baz;
-my $rinfo = Function::Return::info \&baz;
+my $meta = Function::Return::meta \&hello; # Sub::Meta
+$meta->returns->list; # [Str]
+
+$meta->args->[0]->type; # Str
+$meta->args->[0]->name; # $msg
+
+# Note
+Function::Parameters::info \&hello; # undef
 ```
 
 This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
 
-### Function::Return->wrap\_sub($coderef)
+## CLASS METHODS
+
+### wrap\_sub($coderef)
 
 This interface is for power-user. Rather than using the `:Return` attribute, it's possible to wrap a coderef like this:
 
@@ -136,11 +144,11 @@ Both `Return::Type` and `Function::Return` perform type checking on function ret
 
 2\. `Function::Return` check type constraint for void context, but `Return::Type` doesn't.
 
-3\. `Function::Return::info` and `Function::Parameters::info` can be used together, but `Return::Type` seems a bit difficult.
+3\. `Function::Return::meta` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
 
 # SEE ALSO
 
-[Function::Parameters](https://metacpan.org/pod/Function::Parameters), [Return::Type](https://metacpan.org/pod/Return::Type)
+[Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters), [Return::Type](https://metacpan.org/pod/Return%3A%3AType)
 
 # LICENSE
 

@@ -16,52 +16,57 @@ fun with_fp_fun(Str $a) :Return(Num) { }
 method with_fp_method(Str $b) :Return(Num) { }
 
 subtest 'single' => sub {
-    my $info = Function::Return::info \&single;
-    isa_ok $info, 'Function::Return::Info';
-    is_deeply $info->types, [Str];
+    my $meta = Function::Return::meta \&single;
+    isa_ok $meta, 'Sub::Meta';
+    is_deeply $meta->returns->list, [Str];
 };
 
 subtest 'multi' => sub {
-    my $info = Function::Return::info \&multi;
-    isa_ok $info, 'Function::Return::Info';
-    is_deeply $info->types, [Str, Int];
+    my $meta = Function::Return::meta \&multi;
+    isa_ok $meta, 'Sub::Meta';
+    is_deeply $meta->returns->list, [Str, Int];
 };
 
 subtest 'empty' => sub {
-    my $info = Function::Return::info \&empty;
-    isa_ok $info, 'Function::Return::Info';
-    is_deeply $info->types, [];
+    my $meta = Function::Return::meta \&empty;
+    isa_ok $meta, 'Sub::Meta';
+    is_deeply $meta->returns->list, [];
 };
 
 subtest 'no' => sub {
-    my $info = Function::Return::info \&no;
-    is $info, undef;
+    my $meta = Function::Return::meta \&no;
+    is $meta, undef;
 };
 
 subtest 'with_fp_fun' => sub {
-    my $info = Function::Return::info \&with_fp_fun;
-    isa_ok $info, 'Function::Return::Info';
-    is_deeply $info->types, [Num];
+    my $meta = Function::Return::meta \&with_fp_fun;
+    isa_ok $meta, 'Sub::Meta';
+    is_deeply $meta->returns->list, [Num];
 
     my $pinfo = Function::Parameters::info \&with_fp_fun;
-    isa_ok $pinfo, 'Function::Parameters::Info';
-    is $pinfo->keyword, 'fun';
-    my ($p) = $pinfo->positional_required;
-    is $p->type, Str;
-    is $p->name, '$a';
+    is $pinfo, undef;
+    ok !$meta->is_method;
+    is scalar @{$meta->args}, 1;
+    is $meta->args->[0]->type, Str;
+    is $meta->args->[0]->name, '$a';
+    ok $meta->args->[0]->positional;
+    ok $meta->args->[0]->required;
 };
 
 subtest 'with_fp_method' => sub {
-    my $info = Function::Return::info \&with_fp_method;
-    isa_ok $info, 'Function::Return::Info';
-    is_deeply $info->types, [Num];
+    my $meta = Function::Return::meta \&with_fp_method;
+    isa_ok $meta, 'Sub::Meta';
+    is_deeply $meta->returns->list, [Num];
 
     my $pinfo = Function::Parameters::info \&with_fp_method;
-    isa_ok $pinfo, 'Function::Parameters::Info';
-    is $pinfo->keyword, 'method';
-    my ($p) = $pinfo->positional_required;
-    is $p->type, Str;
-    is $p->name, '$b';
+    is $pinfo, undef;
+
+    ok $meta->is_method;
+    is scalar @{$meta->args}, 1;
+    is $meta->args->[0]->type, Str;
+    is $meta->args->[0]->name, '$b';
+    ok $meta->args->[0]->positional;
+    ok $meta->args->[0]->required;
 };
 
 done_testing;
