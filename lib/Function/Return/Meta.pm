@@ -3,7 +3,7 @@ package Function::Return::Meta;
 use v5.14.0;
 use warnings;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 use Scope::Upper ();
 use Sub::Meta;

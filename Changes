@@ -2,6 +2,11 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.08 2021-03-15T05:39:29Z
+    - improve wrap_sub #17
+    - [IMCOMPATIBLE CHANGE] use Sub::Meta #15
+    - [BUGFIX] Fix attributes #14, #16
+
 0.07 2019-06-19T13:15:07Z
     - [BUGFIX] Fix check_sub #11
     - Support `no_check` option globally #12
