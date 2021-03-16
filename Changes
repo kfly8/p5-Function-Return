@@ -2,6 +2,9 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.09 2021-03-16T13:35:42Z
+    - improve Function::Return#Return attribute #18
+
 0.08 2021-03-15T05:39:29Z
     - improve wrap_sub #17
     - [IMCOMPATIBLE CHANGE] use Sub::Meta #15
