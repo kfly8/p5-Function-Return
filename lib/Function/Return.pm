@@ -10,12 +10,15 @@ use B::Hooks::EndOfScope;
 use Function::Return::Meta;
 use namespace::autoclean;
 
+my @RETURN_ARGS;
+my %NO_CHECK;
+
 sub import {
     my $class = shift;
     my %args = @_;
 
     my $pkg = $args{pkg} ? $args{pkg} : scalar caller;
-    Function::Return::Meta->_set_no_check($pkg, $args{no_check}) if exists $args{no_check};
+    $NO_CHECK{$pkg} = !!$args{no_check} if exists $args{no_check};
 
     {
         # allow importing package to use attribute
@@ -23,22 +26,50 @@ sub import {
         push @{"${pkg}::ISA"}, $class;
     }
 
+    #
+    # How to install meta information
+    #   1. At the BEGIN phase, write down the meta information via the `Return` attribute.
+    #   2. At the compile phase, install the meta information in bulk via this `import` subroutine.
+    #
+    # In short,
+    #   once Function::Return#import is compiled, the meta-information can be retrieved.
+    #
+    # The Reason Why?
+    #
+    #   First NG CASE:
+    #     At the **CHECK** phase, write down the meta information via the Return attribute. (Attribute::Handler's default case)
+    #     Then, cannot support lazy load.
+    #     Ref: case_lazy_load.t
+    #
+    #   Second NG CASE:
+    #     At the compile phase, install the meta information in bulk via this **Return** attribute.
+    #     Then, unable to retrieve meta information for Function::Return from places that are compiled before the Return attribute.
+    #     Ref: case_load_and_get_meta.t
+    #
+    on_scope_end {
+        while (my $args = shift @RETURN_ARGS) {
+            my ($pkg, $sub, $types) = @$args;
+            my $no_check = exists $NO_CHECK{$pkg} ? $NO_CHECK{$pkg} : ($ENV{FUNCTION_RETURN_NO_CHECK}//0);
+
+            if ($no_check) {
+                Function::Return::Meta->_register_submeta($pkg, $sub, $types);
+            }
+            else {
+                Function::Return::Meta->_register_submeta_and_install($pkg, $sub, $types);
+            }
+        }
+    };
+
     return;
 }
 
 sub Return :ATTR(CODE,BEGIN) {
     my $class = __PACKAGE__;
-    my ($pkg, undef, $sub, $attr, $types) = @_;
+    my ($pkg, undef, $sub, undef, $types) = @_;
     $types //= [];
 
-    on_scope_end {
-        if (Function::Return::Meta->_no_check($pkg)) {
-            Function::Return::Meta->_register_submeta($pkg, $sub, $types);
-        }
-        else {
-            Function::Return::Meta->_register_submeta_and_install($pkg, $sub, $types);
-        }
-    };
+    push @RETURN_ARGS => [$pkg, $sub, $types];
+    return;
 }
 
 1;

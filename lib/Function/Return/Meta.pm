@@ -11,9 +11,6 @@ use Sub::Meta::Library;
 use Sub::Meta::Creator;
 use Sub::Meta::Finder::FunctionParameters;
 
-use constant DEFAULT_NO_CHECK => !!($ENV{FUNCTION_RETURN_NO_CHECK} // 0);
-my %NO_CHECK;
-
 sub get {
     my ($class, $sub) = @_;
     Sub::Meta::Library->get($sub);
@@ -63,18 +60,6 @@ sub wrap_sub {
     my $src = join "\n", @src;
     my $code = eval "sub { $src }"; ## no critic
     return $code;
-}
-
-
-
-sub _set_no_check {
-    my ($class, $pkg, $flag) = @_;
-    $NO_CHECK{$pkg} = !!$flag;
-}
-
-sub _no_check {
-    my ($class, $pkg) = @_;
-    $NO_CHECK{$pkg} // DEFAULT_NO_CHECK;
 }
 
 sub _croak {
