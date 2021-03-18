@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Fatal;
+use Test::Fatal qw(lives_ok dies_ok);
 
 use lib 't/lib';
 

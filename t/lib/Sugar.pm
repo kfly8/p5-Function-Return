@@ -1,13 +1,12 @@
 package Sugar;
 
+use Import::Into;
+
 sub import {
     my $caller = caller;
 
-    require Types::Standard;
-    Types::Standard->import('-types');
-
-    require Function::Return;
-    Function::Return->import(pkg => $caller);
+    Types::Standard->import::into($caller, '-types');
+    Function::Return->import::into($caller);
 }
 
 1;
