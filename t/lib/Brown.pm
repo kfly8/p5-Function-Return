@@ -2,15 +2,20 @@ package Brown;
 use strict;
 use warnings;
 
-require 'Function/Return.pm';
-Function::Return->import(pkg => 'Bear');
+sub import {
+    my $class  = shift;
+    my $target = shift;
 
-require 'Types/Standard.pm';
-Types::Standard->import('Str');
+    require 'Function/Return.pm';
+    Function::Return->import(pkg => $target);
 
-EXPORT_TYPE: {
-    no strict 'refs'; ## no critic
-    *{"Bear::Str"} = \&{"Brown::Str"};
+    require 'Types/Standard.pm';
+    Types::Standard->import('Str');
+
+    EXPORT_TYPE: {
+        no strict 'refs'; ## no critic
+        *{"${target}::Str"} = \&{"Brown::Str"};
+    }
 }
 
 1;

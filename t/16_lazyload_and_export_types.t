@@ -5,6 +5,8 @@ use Test::More;
 
 use Bear;
 
-is Bear::foo(), 'bar';
+is Bear::foo(), 'baz';
+
+is Bear::horse(), 'hogera';
 
 done_testing;

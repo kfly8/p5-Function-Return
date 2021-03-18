@@ -7,6 +7,7 @@ requires 'Function::Parameters', '2.000003';
 requires 'B::Hooks::EndOfScope', '0.23';
 requires 'namespace::autoclean';
 requires 'Types::Standard';
+requires 'Exporter';
 
 on 'test' => sub {
     requires 'Test::More', '0.98';
