@@ -5,10 +5,9 @@ use Test::Fatal;
 
 use lib 't/lib';
 
-use Sugar;
+use Cola;
 
-sub foo :Return() {123}
-
-ok exception { foo() };
+lives_ok { Cola::drink() };
+dies_ok { Cola::invalid() };
 
 done_testing;
