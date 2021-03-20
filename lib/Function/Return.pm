@@ -22,8 +22,12 @@ sub import {
 
     {
         # allow importing package to use attribute
-        no strict 'refs';
-        push @{"${pkg}::ISA"}, $class;
+        no strict qw(refs);
+        my $MODIFY_CODE_ATTRIBUTES = \&Attribute::Handlers::UNIVERSAL::MODIFY_CODE_ATTRIBUTES;
+        *{"${pkg}::MODIFY_CODE_ATTRIBUTES"} = $MODIFY_CODE_ATTRIBUTES
+             unless defined $pkg->can('MODIFY_CODE_ATTRIBUTES');
+
+        *{"${pkg}::_ATTR_CODE_Return"} = $class->can('Return');
     }
 
     #
