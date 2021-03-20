@@ -29,60 +29,99 @@ boo();
 
 Function::Return allows you to specify a return type for your functions.
 
-## SUPPORT
+# SUPPORT
 
 This module supports all perl versions starting from v5.14.
 
-## IMPORT OPTIONS
+# IMPORT OPTIONS
 
-### no\_check
+- no\_check
 
-You can switch off type check.
-If you change globally, use `<$ENV{FUNCTION_RETURN_NO_CHECK}`>:
+    You can switch off type check.
+    If you change globally, use `<$ENV{FUNCTION_RETURN_NO_CHECK}`>:
+
+    ```perl
+    BEGIN {
+        $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
+    }
+    use Function::Return;
+    sub foo :Return(Int) { 3.14 }
+    foo(); # NO ERROR!
+    ```
+
+    And If you want to switch by a package, it is better to use the no\_check option:
+
+    ```perl
+    use Function::Return no_check => 1;
+    sub foo :Return(Int) { 3.14 }
+    foo(); # NO ERROR!
+    ```
+
+- pkg 
+
+    Function::Return automatically exports a return type by caller.
+
+    Or you can specify a package name:
+
+    ```perl
+    use Function::Return pkg => 'MyClass';
+    ```
+
+# ATTRIBUTES
+
+## Return
+
+`:Return` attribute is available.
+
+# FUNCTIONS
+
+## meta
+
+This function lets you introspect return values:
 
 ```perl
-BEGIN {
-    $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
-}
 use Function::Return;
-sub foo :Return(Int) { 3.14 }
-foo(); # NO ERROR!
-```
-
-And If you want to switch by a package, it is better to use the no\_check option:
-
-```perl
-use Function::Return no_check => 1;
-sub foo :Return(Int) { 3.14 }
-foo(); # NO ERROR!
-```
-
-### pkg
-
-Function::Return automatically exports a return type by caller.
-
-Or you can specify a package name:
-
-```perl
-use Function::Return pkg => 'MyClass';
-```
-
-# NOTE
-
-## handling meta information
-
-[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta) can handle the meta information of `Function::Return`:
-
-```perl
-use Function::Return;
-use Function::Return::Meta;
 use Types::Standard -types;
 
 sub baz() :Return(Str) { 'hello' }
 
-my $meta = Function::Return::Meta->get(\&baz); # Sub::Meta
+my $meta = Function::Return::meta \&baz; # Sub::Meta
 $meta->returns->list; # [Str]
 ```
+
+In addition, it can be used with [Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters):
+
+```perl
+use Function::Parameters;
+use Function::Return;
+use Types::Standard -types;
+
+fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
+
+my $meta = Function::Return::meta \&hello; # Sub::Meta
+$meta->returns->list; # [Str]
+
+$meta->args->[0]->type; # Str
+$meta->args->[0]->name; # $msg
+
+# Note
+Function::Parameters::info \&hello; # undef
+```
+
+This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
+
+# METHODS
+
+## wrap\_sub($coderef)
+
+This interface is for power-user. Rather than using the `:Return` attribute, it's possible to wrap a coderef like this:
+
+```perl
+my $wrapped = Function::Return->wrap_sub($orig, [Str]);
+$wrapped->();
+```
+
+# NOTE
 
 ## enforce LIST to simplify
 
@@ -115,7 +154,7 @@ Both [Return::Type](https://metacpan.org/pod/Return%3A%3AType) and `Function::Re
 
 # SEE ALSO
 
-[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta)
+[Sub::Meta](https://metacpan.org/pod/Sub%3A%3AMeta)
 
 # LICENSE
 

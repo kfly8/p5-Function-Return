@@ -33,7 +33,7 @@ package NoCheck {
 subtest 'single' => sub {
     for my $code (\&single, \&NoCheck::single) {
         subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [Str];
     }
@@ -42,7 +42,7 @@ subtest 'single' => sub {
 subtest 'multi' => sub {
     for my $code (\&multi, \&NoCheck::multi) {
         note subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [Str, Int];
     }
@@ -51,7 +51,7 @@ subtest 'multi' => sub {
 subtest 'empty' => sub {
     for my $code (\&empty, \&NoCheck::empty) {
         note subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [];
     }
@@ -60,7 +60,7 @@ subtest 'empty' => sub {
 subtest 'no' => sub {
     for my $code (\&no, \&NoCheck::no) {
         note subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         is $meta, undef;
     }
 };
@@ -68,7 +68,7 @@ subtest 'no' => sub {
 subtest 'with_fp_fun' => sub {
     for my $code (\&with_fp_fun, \&NoCheck::with_fp_fun) {
         note subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [Num];
 
@@ -86,7 +86,7 @@ subtest 'with_fp_fun' => sub {
 subtest 'with_fp_method' => sub {
     for my $code (\&with_fp_method, \&NoCheck::with_fp_method) {
         note subname($code);
-        my $meta = Function::Return::Meta->get($code);
+        my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [Num];
 

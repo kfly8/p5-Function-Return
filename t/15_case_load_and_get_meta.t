@@ -12,7 +12,7 @@ BEGIN {
     on_scope_end {
         # The subroutine `foo` is defined after this BEGIN clause,
         # but the meta information can be retrieved.
-        my $meta = Function::Return::Meta->get(\&foo);
+        my $meta = Function::Return::meta \&foo;
         isa_ok $meta, 'Sub::Meta';
     }
 };
