@@ -150,7 +150,7 @@ Both [Return::Type](https://metacpan.org/pod/Return%3A%3AType) and `Function::Re
 
 2\. `Function::Return` check type constraint for void context, but `Return::Type` doesn't.
 
-3\. `Function::Return::Meta#get` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
+3\. `Function::Return` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
 
 # SEE ALSO
 

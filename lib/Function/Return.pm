@@ -315,7 +315,7 @@ Both L<Return::Type> and C<Function::Return> perform type checking on function r
 
 2. C<Function::Return> check type constraint for void context, but C<Return::Type> doesn't.
 
-3. C<Function::Return::Meta#get> can be used together with C<Function::Parameters::Info>, but C<Return::Type> seems a bit difficult.
+3. C<Function::Return> can be used together with C<Function::Parameters::Info>, but C<Return::Type> seems a bit difficult.
 
 =head1 SEE ALSO
 
