@@ -67,22 +67,61 @@ Or you can specify a package name:
 use Function::Return pkg => 'MyClass';
 ```
 
-# NOTE
+## ATTRIBUTES
 
-## handling meta information
+### Return
 
-[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta) can handle the meta information of `Function::Return`:
+`:Return` attribute is available.
+
+## FUNCTIONS
+
+### meta
+
+This function lets you introspect return values:
 
 ```perl
 use Function::Return;
-use Function::Return::Meta;
 use Types::Standard -types;
 
 sub baz() :Return(Str) { 'hello' }
 
-my $meta = Function::Return::Meta->get(\&baz); # Sub::Meta
+my $meta = Function::Return::meta \&baz; # Sub::Meta
 $meta->returns->list; # [Str]
 ```
+
+In addition, it can be used with [Function::Parameters](https://metacpan.org/pod/Function%3A%3AParameters):
+
+```perl
+use Function::Parameters;
+use Function::Return;
+use Types::Standard -types;
+
+fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
+
+my $meta = Function::Return::meta \&hello; # Sub::Meta
+$meta->returns->list; # [Str]
+
+$meta->args->[0]->type; # Str
+$meta->args->[0]->name; # $msg
+
+# Note
+Function::Parameters::info \&hello; # undef
+```
+
+This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
+
+## METHODS
+
+### wrap\_sub($coderef)
+
+This interface is for power-user. Rather than using the `:Return` attribute, it's possible to wrap a coderef like this:
+
+```perl
+my $wrapped = Function::Return->wrap_sub($orig, [Str]);
+$wrapped->();
+```
+
+# NOTE
 
 ## enforce LIST to simplify
 
@@ -111,11 +150,11 @@ Both [Return::Type](https://metacpan.org/pod/Return%3A%3AType) and `Function::Re
 
 2\. `Function::Return` check type constraint for void context, but `Return::Type` doesn't.
 
-3\. `Function::Return::Meta#get` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
+3\. `Function::Return` can be used together with `Function::Parameters::Info`, but `Return::Type` seems a bit difficult.
 
 # SEE ALSO
 
-[Function::Return::Meta](https://metacpan.org/pod/Function%3A%3AReturn%3A%3AMeta)
+[Sub::Meta](https://metacpan.org/pod/Sub%3A%3AMeta)
 
 # LICENSE
 

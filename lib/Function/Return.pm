@@ -7,7 +7,12 @@ our $VERSION = "0.09";
 
 use Attribute::Handlers;
 use B::Hooks::EndOfScope;
-use Function::Return::Meta;
+
+use Scope::Upper ();
+use Sub::Meta;
+use Sub::Meta::Library;
+use Sub::Meta::Creator;
+use Sub::Meta::Finder::FunctionParameters;
 use namespace::autoclean;
 
 my @RETURN_ARGS;
@@ -22,8 +27,10 @@ sub import {
 
     {
         # allow importing package to use attribute
-        no strict 'refs';
-        push @{"${pkg}::ISA"}, $class;
+        no strict qw(refs);
+        my $MODIFY_CODE_ATTRIBUTES = \&Attribute::Handlers::UNIVERSAL::MODIFY_CODE_ATTRIBUTES;
+        *{"${pkg}::MODIFY_CODE_ATTRIBUTES"} = $MODIFY_CODE_ATTRIBUTES;
+        *{"${pkg}::_ATTR_CODE_Return"} = $class->can('Return');
     }
 
     #
@@ -52,10 +59,10 @@ sub import {
             my $no_check = exists $NO_CHECK{$pkg} ? $NO_CHECK{$pkg} : ($ENV{FUNCTION_RETURN_NO_CHECK}//0);
 
             if ($no_check) {
-                Function::Return::Meta->_register_submeta($pkg, $sub, $types);
+                $class->_register_submeta($pkg, $sub, $types);
             }
             else {
-                Function::Return::Meta->_register_submeta_and_install($pkg, $sub, $types);
+                $class->_register_submeta_and_install($pkg, $sub, $types);
             }
         }
     };
@@ -69,6 +76,102 @@ sub Return :ATTR(CODE,BEGIN) {
     $types //= [];
 
     push @RETURN_ARGS => [$pkg, $sub, $types];
+    return;
+}
+
+sub meta {
+    my ($sub) = @_;
+    Sub::Meta::Library->get($sub);
+}
+
+sub wrap_sub {
+    my ($class, $sub, $types) = @_;
+
+    my $meta = Sub::Meta->new(sub => $sub);
+    my $shortname = $meta->subname;
+
+    { # check type
+        my $file = $meta->file;
+        my $line = $meta->line;
+        for my $type (@$types) {
+            for (qw/check get_message/) {
+                die "Invalid type: $type. require `$_` method at $file line $line.\n"
+                    unless $type->can($_)
+            }
+        }
+    }
+
+    my @src;
+    push @src => sprintf('_croak "Required list context in fun %s because of multiple return values function" if !wantarray;', $shortname) if @$types > 1;
+
+    # force LIST context.
+    push @src => 'my @ret = &Scope::Upper::uplevel($sub, @_, &Scope::Upper::CALLER(0));';
+
+    # return Empty List
+    push @src => 'return if !@ret;' if @$types == 0;
+
+    # check count
+    push @src => sprintf(q|_croak "Too few return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret < %d;|,
+                         $shortname, "@$types", scalar @$types) if @$types > 0;
+
+    push @src => sprintf(q|_croak "Too many return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret > %d;|,
+                         $shortname, "@$types", scalar @$types);
+
+    # type check
+    for my $i (0 .. $#$types) {
+        push @src => sprintf(q|_croak "Invalid return in fun %s: return %d: @{[$types->[%d]->get_message($ret[%d])]}" unless $types->[%d]->check($ret[%d]);|, $shortname, $i, $i, $i, $i,$i)
+    }
+
+    push @src => 'return @ret;'    if @$types > 1;
+    push @src => 'return $ret[0];' if @$types == 1;
+
+    my $src = join "\n", @src;
+    my $code = eval "sub { $src }"; ## no critic
+    return $code;
+}
+
+sub _croak {
+    my (undef, $file, $line) = caller 1;
+    die @_, " at $file line $line.\n"
+}
+
+sub _register_submeta {
+    my ($class, $pkg, $sub, $types) = @_;
+
+    my $meta = Sub::Meta->new(sub => $sub, stashname => $pkg);
+    $meta->set_returns(list => $types);
+
+    if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
+        $meta->set_is_method($materials->{is_method});
+        $meta->set_parameters($materials->{parameters});
+    }
+
+    Sub::Meta::Library->register($sub, $meta);
+    return;
+}
+
+sub _register_submeta_and_install {
+    my ($class, $pkg, $sub, $types) = @_;
+
+    my $original_meta = Sub::Meta->new(sub => $sub);
+    my $wrapped  = $class->wrap_sub($sub, $types);
+
+    my $meta = Sub::Meta->new(sub => $wrapped, stashname => $pkg);
+    $meta->set_returns(list => $types);
+
+    if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
+        $meta->set_is_method($materials->{is_method});
+        $meta->set_parameters($materials->{parameters});
+    }
+
+    $meta->apply_meta($original_meta);
+    Sub::Meta::Library->register($wrapped, $meta);
+
+    {
+        no strict qw(refs);
+        no warnings qw(redefine);
+        *{$meta->fullname} = $wrapped;
+    }
     return;
 }
 
@@ -137,20 +240,55 @@ Or you can specify a package name:
 
     use Function::Return pkg => 'MyClass';
 
-=head1 NOTE
+=head2 ATTRIBUTES
 
-=head2 handling meta information
+=head3 Return
 
-L<Function::Return::Meta> can handle the meta information of C<Function::Return>:
+C<:Return> attribute is available.
+
+=head2 FUNCTIONS
+
+=head3 meta
+
+This function lets you introspect return values:
 
     use Function::Return;
-    use Function::Return::Meta;
     use Types::Standard -types;
 
     sub baz() :Return(Str) { 'hello' }
 
-    my $meta = Function::Return::Meta->get(\&baz); # Sub::Meta
+    my $meta = Function::Return::meta \&baz; # Sub::Meta
     $meta->returns->list; # [Str]
+
+In addition, it can be used with L<Function::Parameters>:
+
+    use Function::Parameters;
+    use Function::Return;
+    use Types::Standard -types;
+
+    fun hello(Str $msg) :Return(Str) { 'hello' . $msg }
+
+    my $meta = Function::Return::meta \&hello; # Sub::Meta
+    $meta->returns->list; # [Str]
+
+    $meta->args->[0]->type; # Str
+    $meta->args->[0]->name; # $msg
+
+    # Note
+    Function::Parameters::info \&hello; # undef
+
+This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
+
+=head2 METHODS
+
+=head3 wrap_sub($coderef)
+
+This interface is for power-user. Rather than using the C<< :Return >> attribute, it's possible to wrap a coderef like this:
+
+    my $wrapped = Function::Return->wrap_sub($orig, [Str]);
+    $wrapped->();
+
+=head1 NOTE
 
 =head2 enforce LIST to simplify
 
@@ -177,11 +315,11 @@ Both L<Return::Type> and C<Function::Return> perform type checking on function r
 
 2. C<Function::Return> check type constraint for void context, but C<Return::Type> doesn't.
 
-3. C<Function::Return::Meta#get> can be used together with C<Function::Parameters::Info>, but C<Return::Type> seems a bit difficult.
+3. C<Function::Return> can be used together with C<Function::Parameters::Info>, but C<Return::Type> seems a bit difficult.
 
 =head1 SEE ALSO
 
-L<Function::Return::Meta>
+L<Sub::Meta>
 
 =head1 LICENSE
 

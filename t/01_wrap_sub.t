@@ -10,7 +10,7 @@ use Sub::Util ();
 sub w {
     my ($code , $types) = @_;
     Sub::Util::set_subname('hoge', $code);
-    my $wrapped = Function::Return::Meta->wrap_sub($code, $types);
+    my $wrapped = Function::Return->wrap_sub($code, $types);
     $wrapped->();
 }
 
@@ -42,7 +42,7 @@ subtest 'multi return' => sub {
 };
 
 subtest 'cannot wrap' => sub {
-    like(exception { Function::Return::Meta->wrap_sub(sub {}, [bless {}, 'MyType']) }, qr!^Invalid type:!, 'invalid type');
+    like(exception { Function::Return->wrap_sub(sub {}, [bless {}, 'MyType']) }, qr!^Invalid type:!, 'invalid type');
 };
 
 done_testing;
