@@ -29,53 +29,53 @@ boo();
 
 Function::Return allows you to specify a return type for your functions.
 
-# SUPPORT
+## SUPPORT
 
 This module supports all perl versions starting from v5.14.
 
-# IMPORT OPTIONS
+## IMPORT OPTIONS
 
-- no\_check
+### no\_check
 
-    You can switch off type check.
-    If you change globally, use `<$ENV{FUNCTION_RETURN_NO_CHECK}`>:
+You can switch off type check.
+If you change globally, use `<$ENV{FUNCTION_RETURN_NO_CHECK}`>:
 
-    ```perl
-    BEGIN {
-        $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
-    }
-    use Function::Return;
-    sub foo :Return(Int) { 3.14 }
-    foo(); # NO ERROR!
-    ```
+```perl
+BEGIN {
+    $ENV{FUNCTION_RETURN_NO_CHECK} = 1;
+}
+use Function::Return;
+sub foo :Return(Int) { 3.14 }
+foo(); # NO ERROR!
+```
 
-    And If you want to switch by a package, it is better to use the no\_check option:
+And If you want to switch by a package, it is better to use the no\_check option:
 
-    ```perl
-    use Function::Return no_check => 1;
-    sub foo :Return(Int) { 3.14 }
-    foo(); # NO ERROR!
-    ```
+```perl
+use Function::Return no_check => 1;
+sub foo :Return(Int) { 3.14 }
+foo(); # NO ERROR!
+```
 
-- pkg 
+### pkg
 
-    Function::Return automatically exports a return type by caller.
+Function::Return automatically exports a return type by caller.
 
-    Or you can specify a package name:
+Or you can specify a package name:
 
-    ```perl
-    use Function::Return pkg => 'MyClass';
-    ```
+```perl
+use Function::Return pkg => 'MyClass';
+```
 
-# ATTRIBUTES
+## ATTRIBUTES
 
-## Return
+### Return
 
 `:Return` attribute is available.
 
-# FUNCTIONS
+## FUNCTIONS
 
-## meta
+### meta
 
 This function lets you introspect return values:
 
@@ -110,9 +110,9 @@ Function::Parameters::info \&hello; # undef
 
 This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
 
-# METHODS
+## METHODS
 
-## wrap\_sub($coderef)
+### wrap\_sub($coderef)
 
 This interface is for power-user. Rather than using the `:Return` attribute, it's possible to wrap a coderef like this:
 

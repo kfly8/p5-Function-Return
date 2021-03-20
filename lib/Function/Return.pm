@@ -208,16 +208,13 @@ Function::Return - specify a function return type
 
 Function::Return allows you to specify a return type for your functions.
 
-=head1 SUPPORT
+=head2 SUPPORT
 
 This module supports all perl versions starting from v5.14.
 
-=head1 IMPORT OPTIONS
+=head2 IMPORT OPTIONS
 
-=over 2
-
-=item *
-no_check
+=head3 no_check
 
 You can switch off type check.
 If you change globally, use C<<$ENV{FUNCTION_RETURN_NO_CHECK}>>:
@@ -235,8 +232,7 @@ And If you want to switch by a package, it is better to use the no_check option:
     sub foo :Return(Int) { 3.14 }
     foo(); # NO ERROR!
 
-=item *
-pkg 
+=head3 pkg
 
 Function::Return automatically exports a return type by caller.
 
@@ -244,17 +240,15 @@ Or you can specify a package name:
 
     use Function::Return pkg => 'MyClass';
 
-=back
+=head2 ATTRIBUTES
 
-=head1 ATTRIBUTES
-
-=head2 Return
+=head3 Return
 
 C<:Return> attribute is available.
 
-=head1 FUNCTIONS
+=head2 FUNCTIONS
 
-=head2 meta
+=head3 meta
 
 This function lets you introspect return values:
 
@@ -285,9 +279,9 @@ In addition, it can be used with L<Function::Parameters>:
 
 This makes it possible to know both type information of function arguments and return value at compile time, making it easier to use for testing etc.
 
-=head1 METHODS
+=head2 METHODS
 
-=head2 wrap_sub($coderef)
+=head3 wrap_sub($coderef)
 
 This interface is for power-user. Rather than using the C<< :Return >> attribute, it's possible to wrap a coderef like this:
 
