@@ -49,7 +49,7 @@ sub import {
     #     Ref: case_lazy_load.t
     #
     #   Second NG CASE:
-    #     At the compile phase, install the meta information in bulk via this **Return** attribute.
+    #     At the compile phase, install the meta information in **each** via this **Return** attribute.
     #     Then, unable to retrieve meta information for Function::Return from places that are compiled before the Return attribute.
     #     Ref: case_load_and_get_meta.t
     #
