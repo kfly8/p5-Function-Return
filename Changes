@@ -2,6 +2,10 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.10 2021-03-20T11:39:36Z
+    - [BUGFIX] Fix @ISA bugs #22
+    - [IMCOMPATIBLE CHANGE] Delete Meta class #22
+
 0.09 2021-03-16T13:35:42Z
     - improve Function::Return#Return attribute #18
 
