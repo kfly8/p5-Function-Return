@@ -11,7 +11,6 @@ use B::Hooks::EndOfScope;
 use Scope::Upper ();
 use Sub::Meta;
 use Sub::Meta::Library;
-use Sub::Meta::Creator;
 use Sub::Meta::Finder::FunctionParameters;
 use namespace::autoclean;
 
