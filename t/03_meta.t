@@ -35,7 +35,9 @@ subtest 'single' => sub {
         subname($code);
         my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
-        is_deeply $meta->returns->list, [Str];
+        is $meta->returns->list, Str;
+        is $meta->returns->scalar, Str;
+        is $meta->returns->void, Str;
     }
 };
 
@@ -45,6 +47,8 @@ subtest 'multi' => sub {
         my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [Str, Int];
+        is_deeply $meta->returns->scalar, [Str, Int];
+        is_deeply $meta->returns->void, [Str, Int];
     }
 };
 
@@ -54,6 +58,8 @@ subtest 'empty' => sub {
         my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
         is_deeply $meta->returns->list, [];
+        is_deeply $meta->returns->scalar, [];
+        is_deeply $meta->returns->void, [];
     }
 };
 
@@ -70,7 +76,9 @@ subtest 'with_fp_fun' => sub {
         note subname($code);
         my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
-        is_deeply $meta->returns->list, [Num];
+        is $meta->returns->list, Num;
+        is $meta->returns->scalar, Num;
+        is $meta->returns->void, Num;
 
         my $pinfo = Function::Parameters::info \&with_fp_fun;
         is $pinfo, undef;
@@ -88,7 +96,9 @@ subtest 'with_fp_method' => sub {
         note subname($code);
         my $meta = Function::Return::meta $code;
         isa_ok $meta, 'Sub::Meta';
-        is_deeply $meta->returns->list, [Num];
+        is $meta->returns->list, Num;
+        is $meta->returns->scalar, Num;
+        is $meta->returns->void, Num;
 
         my $pinfo = Function::Parameters::info \&with_fp_method;
         is $pinfo, undef;

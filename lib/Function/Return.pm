@@ -138,7 +138,7 @@ sub _register_submeta {
     my ($class, $pkg, $sub, $types) = @_;
 
     my $meta = Sub::Meta->new(sub => $sub, stashname => $pkg);
-    $meta->set_returns(list => $types);
+    $meta->set_returns(_normalize_types($types));
 
     if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
         $meta->set_is_method($materials->{is_method});
@@ -156,7 +156,7 @@ sub _register_submeta_and_install {
     my $wrapped  = $class->wrap_sub($sub, $types);
 
     my $meta = Sub::Meta->new(sub => $wrapped, stashname => $pkg);
-    $meta->set_returns(list => $types);
+    $meta->set_returns(_normalize_types($types));
 
     if (my $materials = Sub::Meta::Finder::FunctionParameters::find_materials($sub)) {
         $meta->set_is_method($materials->{is_method});
@@ -172,6 +172,16 @@ sub _register_submeta_and_install {
         *{$meta->fullname} = $wrapped;
     }
     return;
+}
+
+sub _normalize_types {
+    my $types = shift;
+    if (@$types == 1) {
+        return $types->[0];
+    }
+    else {
+        return $types;
+    }
 }
 
 1;
