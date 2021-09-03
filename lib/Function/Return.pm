@@ -3,7 +3,7 @@ package Function::Return;
 use v5.14.0;
 use warnings;
 
-our $VERSION = "0.12";
+our $VERSION = "0.13";
 
 use Attribute::Handlers;
 use B::Hooks::EndOfScope;

@@ -2,6 +2,9 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.13 2021-09-03T14:45:29Z
+    - improve: types not only list #26
+
 0.12 2021-05-03T13:58:16Z
     - rafactor: not use Sub::Meta::Creator #25
 

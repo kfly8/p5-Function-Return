@@ -71,7 +71,7 @@
          "web" : "https://github.com/kfly8/p5-Function-Return"
       }
    },
-   "version" : "0.12",
+   "version" : "0.13",
    "x_authority" : "cpan:KFLY",
    "x_contributors" : [
       "Kenta Kobayashi <kentafly88@gmail.com>",
