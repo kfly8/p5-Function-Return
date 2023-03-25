@@ -41,6 +41,11 @@ subtest 'multi return' => sub {
     like(exception {         w(sub { 1, undef, 2 }, [Int, Undef]) }, $required_list_context,  'too many/multi/void context');
 };
 
+subtest 'type that takes string parameter return' => sub {
+    my $Color = Enum[qw( red blue green )];
+    is(w(sub { 'red' }, [$Color]), 'red', 'return value is ' . $Color->display_name);
+};
+
 subtest 'cannot wrap' => sub {
     like(exception { Function::Return->wrap_sub(sub {}, [bless {}, 'MyType']) }, qr!^Invalid type:!, 'invalid type');
 };
