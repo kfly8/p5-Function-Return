@@ -110,15 +110,15 @@ sub wrap_sub {
     push @src => 'return if !@ret;' if @$types == 0;
 
     # check count
-    push @src => sprintf(q|_croak "Too few return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret < %d;|,
+    push @src => sprintf(q|_croak qq!Too few return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})! if @ret < %d;|,
                          $shortname, "@$types", scalar @$types) if @$types > 0;
 
-    push @src => sprintf(q|_croak "Too many return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})" if @ret > %d;|,
+    push @src => sprintf(q|_croak qq!Too many return values for fun %s (expected %s, got @{[map { defined $_ ? $_ : 'undef' } @ret]})! if @ret > %d;|,
                          $shortname, "@$types", scalar @$types);
 
     # type check
     for my $i (0 .. $#$types) {
-        push @src => sprintf(q|_croak "Invalid return in fun %s: return %d: @{[$types->[%d]->get_message($ret[%d])]}" unless $types->[%d]->check($ret[%d]);|, $shortname, $i, $i, $i, $i,$i)
+        push @src => sprintf(q|_croak qq!Invalid return in fun %s: return %d: @{[$types->[%d]->get_message($ret[%d])]}! unless $types->[%d]->check($ret[%d]);|, $shortname, $i, $i, $i, $i,$i)
     }
 
     push @src => 'return @ret;'    if @$types > 1;

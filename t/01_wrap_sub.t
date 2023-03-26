@@ -25,6 +25,12 @@ subtest 'single return' => sub {
     like(exception { w(sub { 1.2 }, [Int]) }, qr!^Invalid return in fun hoge: return 0: Value "1\.2" did not pass type constraint "Int" at t/01_wrap_sub\.t line 14\.$!, 'return value is NOT Int');
 };
 
+subtest 'type that takes string parameter return' => sub {
+    my $Color = Enum[qw( red blue green )];
+    is(w(sub { 'red' }, [$Color]), 'red', 'return value is ' . $Color->display_name);
+    like(exception { w(sub { 0 }, [$Color]) }, qr!^Invalid return in fun hoge: return 0: Value "0" did not pass type constraint "Enum\["red","blue","green"]" at t/01_wrap_sub\.t line 14\.$!, 'return value is not ' . $Color->display_name);
+};
+
 subtest 'multi return' => sub {
     my $required_list_context = qr!^Required list context in fun hoge because of multiple return values function at t/01_wrap_sub\.t line 14\.$!;
 
