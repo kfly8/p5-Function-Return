@@ -4,7 +4,7 @@
       "kfly8 <kfly@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.12, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.21, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -67,17 +67,18 @@
       "homepage" : "https://github.com/kfly8/p5-Function-Return",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/kfly8/p5-Function-Return.git",
+         "url" : "https://github.com/kfly8/p5-Function-Return.git",
          "web" : "https://github.com/kfly8/p5-Function-Return"
       }
    },
    "version" : "0.14",
    "x_authority" : "cpan:KFLY",
    "x_contributors" : [
-      "Kenta Kobayashi <kentafly88@gmail.com>",
       "Mohammad S Anwar <mohammad.anwar@yahoo.com>",
-      "bayashi <bayashi@cpan.org>"
+      "bayashi <bayashi@cpan.org>",
+      "kobaken <kentafly88@gmail.com>",
+      "ybrliiu <raian@reeshome.org>"
    ],
-   "x_serialization_backend" : "JSON::PP version 4.04",
+   "x_serialization_backend" : "JSON::PP version 4.07",
    "x_static_install" : 1
 }

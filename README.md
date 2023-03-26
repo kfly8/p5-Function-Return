@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/kfly8/p5-Function-Return/workflows/test/badge.svg)](https://github.com/kfly8/p5-Function-Return/actions) [![Coverage Status](https://img.shields.io/coveralls/kfly8/p5-Function-Return/master.svg?style=flat)](https://coveralls.io/r/kfly8/p5-Function-Return?branch=master) [![MetaCPAN Release](https://badge.fury.io/pl/Function-Return.svg)](https://metacpan.org/release/Function-Return)
+[![Actions Status](https://github.com/kfly8/p5-Function-Return/workflows/test/badge.svg)](https://github.com/kfly8/p5-Function-Return/actions) [![Coverage Status](https://img.shields.io/coveralls/kfly8/p5-Function-Return/main.svg?style=flat)](https://coveralls.io/r/kfly8/p5-Function-Return?branch=main) [![MetaCPAN Release](https://badge.fury.io/pl/Function-Return.svg)](https://metacpan.org/release/Function-Return)
 # NAME
 
 Function::Return - specify a function return type
