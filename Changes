@@ -2,6 +2,9 @@ Revision history for Perl extension Function-Return
 
 {{$NEXT}}
 
+0.15 2023-03-26T05:31:00Z
+    - [BUGFIX] An error occurred if the type takes string parameters #28 (Thanks @ybrliiu)
+
 0.14 2021-09-06T14:59:02Z
     - rerelease #26
 
